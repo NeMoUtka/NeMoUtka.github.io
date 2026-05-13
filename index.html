@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DefectVision — AI Defect Detection</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --accent: #00f5a0;
+      --accent2: #00c8f5;
+      --warn: #ff4d6d;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+      --card: #13131f;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── GRID BACKGROUND ── */
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,245,160,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,160,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 3rem;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.95rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(0,245,160,0.07) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -55%);
+      pointer-events: none;
+    }
+
+    .hero-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      border: 1px solid rgba(0,245,160,0.3);
+      padding: 0.35rem 1rem;
+      border-radius: 2px;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      max-width: 600px;
+      color: var(--muted);
+      font-size: 1.1rem;
+      line-height: 1.7;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 2rem;
+      border-radius: 3px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0f;
+      font-weight: 700;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,245,160,0.25);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      position: relative; z-index: 1;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .stat-item {
+      flex: 1;
+      min-width: 160px;
+      padding: 2rem;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+
+    .stat-item:last-child { border-right: none; }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      font-family: 'Space Mono', monospace;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 0.4rem;
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      position: relative; z-index: 1;
+      padding: 6rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 3.5rem;
+    }
+
+    /* ── RESULTS GRID ── */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .result-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+
+    .result-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,245,160,0.1);
+    }
+
+    .result-img-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #0d0d18;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .result-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s;
+    }
+
+    .result-card:hover .result-img-wrap img { transform: scale(1.04); }
+
+    /* Placeholder when no image */
+    .img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+    }
+
+    .img-placeholder svg { opacity: 0.3; }
+
+    .result-badge {
+      position: absolute;
+      top: 0.75rem; right: 0.75rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 2px;
+    }
+
+    .badge-defect { background: rgba(255,77,109,0.85); color: #fff; }
+    .badge-ok     { background: rgba(0,245,160,0.85); color: #0a0a0f; }
+    .badge-conf   { background: rgba(0,200,245,0.85); color: #0a0a0f; }
+
+    .result-body { padding: 1.25rem; }
+
+    .result-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .result-meta {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .result-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .result-bar-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .result-bar {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .result-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.8s ease;
+    }
+
+    .result-bar-val {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--accent);
+      min-width: 2.5rem;
+      text-align: right;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .pipeline {
+      display: flex;
+      gap: 0;
+      flex-wrap: wrap;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .pipeline-step {
+      flex: 1;
+      min-width: 180px;
+      padding: 2rem 1.5rem;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+
+    .pipeline-step:last-child { border-right: none; }
+
+    .step-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      margin-bottom: 1rem;
+    }
+
+    .step-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .step-title {
+      font-weight: 800;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── METRICS TABLE ── */
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    .metrics-table th {
+      text-align: left;
+      padding: 1rem 1.5rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .metrics-table td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .metrics-table tr:last-child td { border-bottom: none; }
+
+    .metrics-table tr:hover td { background: rgba(0,245,160,0.03); }
+
+    .metric-pill {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      border-radius: 2px;
+      font-size: 0.72rem;
+    }
+
+    .pill-green  { background: rgba(0,245,160,0.12); color: var(--accent); }
+    .pill-blue   { background: rgba(0,200,245,0.12); color: var(--accent2); }
+    .pill-red    { background: rgba(255,77,109,0.12); color: var(--warn); }
+
+    /* ── TEAM / ABOUT ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 700px) {
+      .about-grid { grid-template-columns: 1fr; }
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .stat-item { min-width: 130px; }
+    }
+
+    .about-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2rem;
+    }
+
+    .about-card h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+
+    .about-card p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.9rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 2rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: gap;
+      gap: 1rem;
+    }
+
+    .footer-logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+    }
+
+    .footer-text {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* scanning line effect on cards */
+    .result-img-wrap::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      top: -10%;
+      transition: opacity 0.2s;
+      animation: none;
+    }
+
+    .result-card:hover .result-img-wrap::after {
+      opacity: 0.6;
+      animation: scan 1.2s linear infinite;
+    }
+
+    @keyframes scan {
+      0%   { top: -5%; }
+      100% { top: 105%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">// DefectVision</div>
+  <ul class="nav-links">
+    <li><a href="#results">Results</a></li>
+    <li><a href="#pipeline">Pipeline</a></li>
+    <li><a href="#metrics">Metrics</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-tag">// University Research Project · 2025</div>
+  <h1>AI-Powered<br /><span>Defect Detection</span></h1>
+  <p class="hero-desc">
+    A deep learning model for automated surface defect detection, leveraging computer vision
+    to identify and classify manufacturing flaws with high precision.
+  </p>
+  <div class="hero-btns">
+    <a href="#results" class="btn btn-primary">↓ View Results</a>
+    <a href="#pipeline" class="btn btn-outline">How it Works</a>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-value">97.3%</div>
+    <div class="stat-label">Accuracy</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">94.8%</div>
+    <div class="stat-label">Precision</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">96.1%</div>
+    <div class="stat-label">Recall</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">12ms</div>
+    <div class="stat-label">Inference Time</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">5</div>
+    <div class="stat-label">Defect Classes</div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="section-tag reveal">// Model Output Gallery</div>
+  <h2 class="section-title reveal">Detection Results</h2>
+  <p class="section-desc reveal">
+    Sample predictions from the trained model. Each image shows the original input
+    overlaid with bounding boxes and confidence scores from the detector.
+  </p>
+
+  <div class="results-grid">
+
+    <!-- CARD 1 — replace src with your image path -->
+    <div class="result-card reveal">
+      <div class="result-img-wrap">
+        <img src="images/result1.jpg" alt="Detection result 1"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="img-placeholder" style="display:none;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Add your image to<br/>images/result1.jpg
+        </div>
+        <span class="result-badge badge-defect">Defect</span>
+      </div>
+      <div class="result-body">
+        <div class="result-title">Surface Crack — Sample 001</div>
+        <div class="result-meta">Class: Linear Crack · Severity: High</div>
+        <div class="result-bar-wrap">
+          <span class="result-bar-label">Conf.</span>
+          <div class="result-bar"><div class="result-bar-fill" style="width:96%"></div></div>
+          <span class="result-bar-val">96%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 2 -->
+    <div class="result-card reveal">
+      <div class="result-img-wrap">
+        <img src="images/result2.jpg" alt="Detection result 2"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="img-placeholder" style="display:none;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Add your image to<br/>images/result2.jpg
+        </div>
+        <span class="result-badge badge-ok">OK</span>
+      </div>
+      <div class="result-body">
+        <div class="result-title">Clean Surface — Sample 002</div>
+        <div class="result-meta">Class: No Defect · Severity: None</div>
+        <div class="result-bar-wrap">
+          <span class="result-bar-label">Conf.</span>
+          <div class="result-bar"><div class="result-bar-fill" style="width:99%"></div></div>
+          <span class="result-bar-val">99%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 3 -->
+    <div class="result-card reveal">
+      <div class="result-img-wrap">
+        <img src="images/result3.jpg" alt="Detection result 3"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="img-placeholder" style="display:none;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Add your image to<br/>images/result3.jpg
+        </div>
+        <span class="result-badge badge-defect">Defect</span>
+      </div>
+      <div class="result-body">
+        <div class="result-title">Scratch Defect — Sample 003</div>
+        <div class="result-meta">Class: Surface Scratch · Severity: Medium</div>
+        <div class="result-bar-wrap">
+          <span class="result-bar-label">Conf.</span>
+          <div class="result-bar"><div class="result-bar-fill" style="width:88%"></div></div>
+          <span class="result-bar-val">88%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 4 -->
+    <div class="result-card reveal">
+      <div class="result-img-wrap">
+        <img src="images/result4.jpg" alt="Detection result 4"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="img-placeholder" style="display:none;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Add your image to<br/>images/result4.jpg
+        </div>
+        <span class="result-badge badge-conf">Uncertain</span>
+      </div>
+      <div class="result-body">
+        <div class="result-title">Edge Case — Sample 004</div>
+        <div class="result-meta">Class: Possible Pit · Severity: Low</div>
+        <div class="result-bar-wrap">
+          <span class="result-bar-label">Conf.</span>
+          <div class="result-bar"><div class="result-bar-fill" style="width:61%"></div></div>
+          <span class="result-bar-val">61%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 5 -->
+    <div class="result-card reveal">
+      <div class="result-img-wrap">
+        <img src="images/result5.jpg" alt="Detection result 5"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="img-placeholder" style="display:none;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Add your image to<br/>images/result5.jpg
+        </div>
+        <span class="result-badge badge-defect">Defect</span>
+      </div>
+      <div class="result-body">
+        <div class="result-title">Corrosion Spot — Sample 005</div>
+        <div class="result-meta">Class: Oxidation · Severity: High</div>
+        <div class="result-bar-wrap">
+          <span class="result-bar-label">Conf.</span>
+          <div class="result-bar"><div class="result-bar-fill" style="width:91%"></div></div>
+          <span class="result-bar-val">91%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 6 -->
+    <div class="result-card reveal">
+      <div class="result-img-wrap">
+        <img src="images/result6.jpg" alt="Detection result 6"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="img-placeholder" style="display:none;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Add your image to<br/>images/result6.jpg
+        </div>
+        <span class="result-badge badge-ok">OK</span>
+      </div>
+      <div class="result-body">
+        <div class="result-title">Clean Surface — Sample 006</div>
+        <div class="result-meta">Class: No Defect · Severity: None</div>
+        <div class="result-bar-wrap">
+          <span class="result-bar-label">Conf.</span>
+          <div class="result-bar"><div class="result-bar-fill" style="width:98%"></div></div>
+          <span class="result-bar-val">98%</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline" style="padding-top:0;">
+  <div class="section-tag reveal">// Architecture</div>
+  <h2 class="section-title reveal">How It Works</h2>
+  <p class="section-desc reveal">
+    A four-stage pipeline transforms raw camera frames into structured defect reports in real time.
+  </p>
+
+  <div class="pipeline reveal">
+    <div class="pipeline-step">
+      <div class="step-num">01</div>
+      <span class="step-icon">📷</span>
+      <div class="step-title">Image Capture</div>
+      <p class="step-desc">High-resolution images are acquired from industrial cameras or uploaded datasets for offline evaluation.</p>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">02</div>
+      <span class="step-icon">⚙️</span>
+      <div class="step-title">Preprocessing</div>
+      <p class="step-desc">Normalization, resizing to 640×640, and augmentation (flip, crop, noise) prepare inputs for the backbone.</p>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">03</div>
+      <span class="step-icon">🧠</span>
+      <div class="step-title">Model Inference</div>
+      <p class="step-desc">A fine-tuned YOLOv8 / CNN backbone runs forward pass, producing bounding boxes and class probabilities.</p>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">04</div>
+      <span class="step-icon">📊</span>
+      <div class="step-title">Post-processing</div>
+      <p class="step-desc">NMS filters overlapping boxes; results are visualized with color-coded overlays and logged to a report.</p>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section id="metrics" style="padding-top:0;">
+  <div class="section-tag reveal">// Evaluation</div>
+  <h2 class="section-title reveal">Performance Metrics</h2>
+  <p class="section-desc reveal">
+    Evaluated on a held-out test set of 1,200 images across 5 defect categories.
+    <!-- Edit these numbers to match your actual results -->
+  </p>
+
+  <div style="border:1px solid var(--border); border-radius:4px; overflow:hidden;" class="reveal">
+    <table class="metrics-table">
+      <thead>
+        <tr>
+          <th>Defect Class</th>
+          <th>Precision</th>
+          <th>Recall</th>
+          <th>F1 Score</th>
+          <th>mAP@0.5</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Linear Crack</td>
+          <td><span class="metric-pill pill-green">96.2%</span></td>
+          <td><span class="metric-pill pill-blue">97.1%</span></td>
+          <td><span class="metric-pill pill-green">96.6%</span></td>
+          <td><span class="metric-pill pill-green">0.962</span></td>
+        </tr>
+        <tr>
+          <td>Surface Scratch</td>
+          <td><span class="metric-pill pill-green">93.4%</span></td>
+          <td><span class="metric-pill pill-blue">94.8%</span></td>
+          <td><span class="metric-pill pill-green">94.1%</span></td>
+          <td><span class="metric-pill pill-green">0.934</span></td>
+        </tr>
+        <tr>
+          <td>Pit / Void</td>
+          <td><span class="metric-pill pill-blue">89.7%</span></td>
+          <td><span class="metric-pill pill-blue">91.2%</span></td>
+          <td><span class="metric-pill pill-blue">90.4%</span></td>
+          <td><span class="metric-pill pill-blue">0.897</span></td>
+        </tr>
+        <tr>
+          <td>Oxidation</td>
+          <td><span class="metric-pill pill-green">95.1%</span></td>
+          <td><span class="metric-pill pill-blue">93.6%</span></td>
+          <td><span class="metric-pill pill-green">94.3%</span></td>
+          <td><span class="metric-pill pill-green">0.951</span></td>
+        </tr>
+        <tr>
+          <td>No Defect</td>
+          <td><span class="metric-pill pill-green">99.1%</span></td>
+          <td><span class="metric-pill pill-green">98.7%</span></td>
+          <td><span class="metric-pill pill-green">98.9%</span></td>
+          <td><span class="metric-pill pill-green">0.991</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" style="padding-top:0; padding-bottom:4rem;">
+  <div class="section-tag reveal">// The Project</div>
+  <h2 class="section-title reveal">About</h2>
+
+  <div class="about-grid">
+    <div class="about-card reveal">
+      <h3>Project Overview</h3>
+      <p>
+        This project applies deep learning to automated quality control. Traditional
+        manual inspection is slow and error-prone; our model provides consistent,
+        real-time analysis that generalises across surface types and lighting conditions.
+        <!-- Edit this text with your project description -->
+      </p>
+    </div>
+    <div class="about-card reveal">
+      <h3>Dataset & Training</h3>
+      <p>
+        The model was trained on the NEU Surface Defect Database, augmented with
+        custom images. Training ran for 100 epochs on a single NVIDIA GPU using
+        PyTorch, with early stopping and cosine LR scheduling.
+        <!-- Edit to match your actual setup -->
+      </p>
+    </div>
+    <div class="about-card reveal">
+      <h3>Tech Stack</h3>
+      <p>
+        Python · PyTorch · YOLOv8 · OpenCV · scikit-learn · Weights &amp; Biases
+        for experiment tracking · ONNX for model export and edge deployment.
+        <!-- Edit to match your tech stack -->
+      </p>
+    </div>
+    <div class="about-card reveal">
+      <h3>Team</h3>
+      <p>
+        Developed by [Your Name] as part of the [Course Name] course at
+        [Your University], [Year]. Supervised by [Supervisor Name].
+        <!-- Replace with your real info -->
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">// DefectVision</div>
+  <div class="footer-text">University Project · [Your University] · [Year]</div>
+</footer>
+
+<script>
+  // Intersection Observer for reveal animations
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        // Stagger siblings in the same grid
+        const siblings = [...e.target.parentElement.children].filter(c => c.classList.contains('reveal'));
+        const idx = siblings.indexOf(e.target);
+        e.target.style.transitionDelay = (idx * 80) + 'ms';
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  reveals.forEach(el => observer.observe(el));
+
+  // Animate confidence bars on scroll into view
+  const bars = document.querySelectorAll('.result-bar-fill');
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.width = e.target.style.width; // trigger reflow
+        barObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  bars.forEach(b => {
+    const w = b.style.width;
+    b.style.width = '0%';
+    setTimeout(() => { b.style.width = w; }, 300);
+    barObserver.observe(b);
+  });
+</script>
+
+</body>
+</html>
