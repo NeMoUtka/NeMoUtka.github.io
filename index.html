@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DefectVision — AI Defect Detection</title>
+  <title>Defect Detection — Research Project</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -95,9 +95,9 @@
     }
 
     .hero h1 {
-      font-size: clamp(2.8rem, 7vw, 6rem);
+      font-size: clamp(2.6rem, 6.5vw, 5.5rem);
       font-weight: 600;
-      line-height: 1.05;
+      line-height: 1.06;
       letter-spacing: -0.03em;
       margin-bottom: 1.5rem;
       animation: fadeUp 0.6s 0.1s ease both;
@@ -106,7 +106,7 @@
     .hero h1 span { color: var(--accent2); }
 
     .hero-desc {
-      max-width: 540px;
+      max-width: 580px;
       color: var(--muted);
       font-size: 1.05rem;
       line-height: 1.75;
@@ -137,20 +137,9 @@
       transition: all 0.2s;
     }
 
-    .btn-primary {
-      background: var(--text);
-      color: #fff;
-      border: 1px solid var(--text);
-    }
-
+    .btn-primary { background: var(--text); color: #fff; border: 1px solid var(--text); }
     .btn-primary:hover { background: #333; transform: translateY(-1px); }
-
-    .btn-outline {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border-strong);
-    }
-
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border-strong); }
     .btn-outline:hover { border-color: var(--text); background: var(--tag-bg); }
 
     /* ── STATS BAR ── */
@@ -164,32 +153,27 @@
     }
 
     .stat-item {
-      flex: 1;
-      min-width: 150px;
-      padding: 2rem;
-      text-align: center;
+      flex: 1; min-width: 150px;
+      padding: 2rem; text-align: center;
       border-right: 1px solid var(--border);
     }
 
     .stat-item:last-child { border-right: none; }
 
     .stat-value {
-      font-size: 2.2rem;
-      font-weight: 600;
+      font-size: 2.2rem; font-weight: 600;
       color: var(--text);
       font-family: 'DM Mono', monospace;
       line-height: 1;
     }
 
     .stat-label {
-      font-size: 0.72rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      font-size: 0.72rem; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
       margin-top: 0.45rem;
     }
 
-    /* ── SECTIONS ── */
+    /* ── SHARED SECTION STYLES ── */
     section {
       padding: 6rem 2rem;
       max-width: 1160px;
@@ -198,145 +182,157 @@
 
     .section-tag {
       font-family: 'DM Mono', monospace;
-      font-size: 0.67rem;
-      color: var(--muted);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
+      font-size: 0.67rem; color: var(--muted);
+      letter-spacing: 0.14em; text-transform: uppercase;
       margin-bottom: 0.9rem;
     }
 
     .section-title {
       font-size: clamp(1.8rem, 3.5vw, 2.5rem);
-      font-weight: 600;
-      letter-spacing: -0.02em;
+      font-weight: 600; letter-spacing: -0.02em;
       margin-bottom: 0.9rem;
     }
 
     .section-desc {
-      color: var(--muted);
-      max-width: 500px;
-      line-height: 1.75;
-      margin-bottom: 3rem;
-      font-size: 0.93rem;
+      color: var(--muted); max-width: 640px;
+      line-height: 1.8; margin-bottom: 3rem;
+      font-size: 0.95rem;
     }
 
     .section-divider {
-      max-width: 1160px;
-      margin: 0 auto;
-      border: none;
-      border-top: 1px solid var(--border);
+      max-width: 1160px; margin: 0 auto;
+      border: none; border-top: 1px solid var(--border);
     }
 
-    /* ── RESULTS GRID ── */
-    .results-grid {
+    /* ── TWO-COLUMN TEXT LAYOUT ── */
+    .two-col {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-top: 0.5rem;
+    }
+
+    .text-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+    }
+
+    .text-card h3 {
+      font-size: 0.93rem; font-weight: 500;
+      margin-bottom: 1rem; color: var(--text);
+    }
+
+    .text-card p {
+      color: var(--muted); line-height: 1.8;
+      font-size: 0.9rem;
+    }
+
+    /* ── MODEL SELECTION CARDS ── */
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 1.25rem;
     }
 
-    .result-card {
-      background: var(--card);
+    .model-card {
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
-      overflow: hidden;
-      transition: border-color 0.2s, box-shadow 0.25s, transform 0.25s;
+      padding: 1.75rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .result-card:hover {
+    .model-card:hover {
       border-color: var(--border-strong);
-      box-shadow: 0 8px 28px rgba(0,0,0,0.07);
-      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
     }
 
-    .result-img-wrap {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 4/3;
-      background: var(--tag-bg);
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .result-img-wrap img {
-      width: 100%; height: 100%;
-      object-fit: cover; display: block;
-      transition: transform 0.4s;
-    }
-
-    .result-card:hover .result-img-wrap img { transform: scale(1.03); }
-
-    .img-placeholder {
-      width: 100%; height: 100%;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 0.75rem;
-      color: var(--muted);
+    .model-badge {
+      display: inline-block;
       font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.04em;
-      text-align: center; line-height: 1.6;
-    }
-
-    .img-placeholder svg { opacity: 0.22; }
-
-    .result-badge {
-      position: absolute;
-      top: 0.75rem; right: 0.75rem;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.07em;
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 0.25rem 0.6rem;
+      padding: 0.22rem 0.6rem;
       border-radius: 4px;
-      font-weight: 500;
-    }
-
-    .badge-defect { background: #fde8e8; color: var(--defect); }
-    .badge-ok     { background: #e8f5ed; color: var(--ok); }
-    .badge-conf   { background: #fef4e0; color: var(--uncertain); }
-
-    .result-body { padding: 1.2rem 1.25rem; }
-
-    .result-title {
-      font-weight: 500;
-      font-size: 0.93rem;
-      margin-bottom: 0.3rem;
-    }
-
-    .result-meta {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.67rem;
-      color: var(--muted);
       margin-bottom: 1rem;
     }
 
-    .result-bar-wrap { display: flex; align-items: center; gap: 0.75rem; }
+    .badge-supervised   { background: #e8eef7; color: #2d5a8e; }
+    .badge-unsupervised { background: #f0ede8; color: #7a5c2a; }
 
-    .result-bar-label {
+    .model-card h3 {
+      font-size: 1rem; font-weight: 500;
+      margin-bottom: 0.4rem; color: var(--text);
+    }
+
+    .model-card .model-arch {
       font-family: 'DM Mono', monospace;
-      font-size: 0.64rem;
+      font-size: 0.68rem; color: var(--muted);
+      margin-bottom: 0.85rem;
+    }
+
+    .model-card p {
+      font-size: 0.84rem; color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ── RESULTS SECTION ── */
+    .sample-block {
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .sample-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .sample-header h3 {
+      font-size: 0.95rem; font-weight: 500;
+    }
+
+    .sample-header .sample-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem; color: var(--muted);
+    }
+
+    .sample-composite {
+      padding: 1.5rem;
+    }
+
+    .sample-composite img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 6px;
+    }
+
+    .img-placeholder-full {
+      width: 100%;
+      aspect-ratio: 6/2;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.75rem;
+      background: var(--tag-bg);
+      border-radius: 6px;
       color: var(--muted);
-    }
-
-    .result-bar {
-      flex: 1; height: 3px;
-      background: var(--border); border-radius: 2px; overflow: hidden;
-    }
-
-    .result-bar-fill {
-      height: 100%; border-radius: 2px;
-      background: var(--text);
-      transition: width 0.8s ease;
-    }
-
-    .result-bar-val {
       font-family: 'DM Mono', monospace;
-      font-size: 0.67rem;
-      color: var(--text);
-      min-width: 2.4rem; text-align: right;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-align: center; line-height: 1.7;
     }
+
+    .img-placeholder-full svg { opacity: 0.2; }
 
     /* ── PIPELINE ── */
     .pipeline {
@@ -356,77 +352,34 @@
 
     .step-num {
       font-family: 'DM Mono', monospace;
-      font-size: 0.64rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      margin-bottom: 1rem;
+      font-size: 0.64rem; color: var(--muted);
+      letter-spacing: 0.08em; margin-bottom: 1rem;
     }
 
     .step-icon { font-size: 1.4rem; margin-bottom: 0.75rem; display: block; }
-
     .step-title { font-weight: 500; font-size: 0.93rem; margin-bottom: 0.5rem; }
-
     .step-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
 
-    /* ── METRICS TABLE ── */
-    .metrics-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-
-    .metrics-table th {
-      text-align: left;
-      padding: 0.9rem 1.25rem;
-      font-size: 0.67rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      border-bottom: 1px solid var(--border);
-      font-weight: 500;
-      font-family: 'DM Mono', monospace;
-    }
-
-    .metrics-table td {
-      padding: 0.9rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .metrics-table tr:last-child td { border-bottom: none; }
-    .metrics-table tr:hover td { background: var(--tag-bg); }
-
-    .metric-pill {
-      display: inline-block;
-      padding: 0.18rem 0.6rem;
-      border-radius: 4px;
-      font-size: 0.74rem;
-      font-family: 'DM Mono', monospace;
-    }
-
-    .pill-green { background: #e8f5ed; color: #1e7a40; }
-    .pill-blue  { background: #e8eef7; color: #2d5a8e; }
-    .pill-red   { background: #fde8e8; color: #a93226; }
-
-    /* ── ABOUT GRID ── */
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-    }
-
-    .about-card {
+    /* ── FUTURE WORK ── */
+    .future-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 1.75rem;
+      padding: 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2rem;
     }
 
-    .about-card h3 {
-      font-size: 0.93rem;
-      font-weight: 500;
-      margin-bottom: 0.75rem;
+    .future-item h3 {
+      font-size: 0.93rem; font-weight: 500;
+      margin-bottom: 0.65rem;
+      display: flex; align-items: center; gap: 0.5rem;
     }
 
-    .about-card p {
-      color: var(--muted);
+    .future-item p {
+      font-size: 0.87rem; color: var(--muted);
       line-height: 1.75;
-      font-size: 0.88rem;
     }
 
     /* ── FOOTER ── */
@@ -436,25 +389,28 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
+      flex-wrap: wrap; gap: 1rem;
       background: var(--surface);
     }
 
     .footer-logo {
       font-family: 'DM Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--text);
+      font-size: 0.8rem; color: var(--text);
     }
 
     .footer-text { font-size: 0.8rem; color: var(--muted); }
 
     /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      .future-card { grid-template-columns: 1fr; gap: 1.5rem; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+
     @media (max-width: 700px) {
-      .about-grid { grid-template-columns: 1fr; }
       nav { padding: 1rem 1.5rem; }
       .nav-links { display: none; }
       .stat-item { min-width: 130px; }
+      .sample-composite { padding: 1rem; }
     }
 
     /* ── ANIMATIONS ── */
@@ -464,8 +420,7 @@
     }
 
     .reveal {
-      opacity: 0;
-      transform: translateY(22px);
+      opacity: 0; transform: translateY(22px);
       transition: opacity 0.55s ease, transform 0.55s ease;
     }
 
@@ -476,347 +431,281 @@
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">DefectVision</div>
+  <div class="nav-logo">Defect Detection</div>
   <ul class="nav-links">
+    <li><a href="#motivation">Motivation</a></li>
+    <li><a href="#models">Models</a></li>
     <li><a href="#results">Results</a></li>
-    <li><a href="#pipeline">Pipeline</a></li>
-    <li><a href="#metrics">Metrics</a></li>
-    <li><a href="#about">About</a></li>
+    <li><a href="#future">Future Work</a></li>
   </ul>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
   <div class="hero-tag">University Research Project · 2025</div>
-  <h1>AI-Powered<br /><span>Defect Detection</span></h1>
+  <h1>Supervised vs. Unsupervised<br /><span>Defect Detection</span></h1>
   <p class="hero-desc">
-    A deep learning model for automated surface defect detection, leveraging computer vision
-    to identify and classify manufacturing flaws with high precision.
+    A comparative study of CNN-based and Transformer-based architectures across
+    supervised and unsupervised learning paradigms for industrial surface defect detection.
   </p>
   <div class="hero-btns">
     <a href="#results" class="btn btn-primary">View Results ↓</a>
-    <a href="#pipeline" class="btn btn-outline">How it Works</a>
+    <a href="#models" class="btn btn-outline">Model Overview</a>
   </div>
 </div>
 
-<!-- STATS -->
+<!-- STATS BAR -->
 <div class="stats-bar">
   <div class="stat-item">
-    <div class="stat-value">97.3%</div>
-    <div class="stat-label">Accuracy</div>
+    <div class="stat-value">4</div>
+    <div class="stat-label">Models Compared</div>
   </div>
   <div class="stat-item">
-    <div class="stat-value">94.8%</div>
-    <div class="stat-label">Precision</div>
+    <div class="stat-value">2</div>
+    <div class="stat-label">Approaches</div>
   </div>
   <div class="stat-item">
-    <div class="stat-value">96.1%</div>
-    <div class="stat-label">Recall</div>
+    <div class="stat-value">2</div>
+    <div class="stat-label">MVTec Categories</div>
   </div>
   <div class="stat-item">
-    <div class="stat-value">12ms</div>
-    <div class="stat-label">Inference Time</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-value">5</div>
-    <div class="stat-label">Defect Classes</div>
+    <div class="stat-value">2</div>
+    <div class="stat-label">Backbone Types</div>
   </div>
 </div>
+
+<!-- MOTIVATION -->
+<section id="motivation">
+  <div class="section-tag reveal">Research Motivation</div>
+  <h2 class="section-title reveal">Why This Matters</h2>
+  <p class="section-desc reveal">
+    Defect detection sits at the intersection of computer vision and industrial automation —
+    yet practical adoption in small manufacturing settings remains limited.
+  </p>
+
+  <div class="two-col">
+    <div class="text-card reveal">
+      <h3>The Adoption Gap</h3>
+      <p>
+        Despite rapid progress in Machine Learning and AI, many small manufacturing companies
+        still avoid these technologies. The primary barriers are perceived cost and technical
+        complexity — not a lack of need. This creates a significant gap between what is
+        technically possible and what is actually deployed on the factory floor.
+      </p>
+    </div>
+    <div class="text-card reveal">
+      <h3>The Cost of Manual Inspection</h3>
+      <p>
+        Manual defect detection is both expensive and time-consuming. It demands additional
+        employees, dedicated inspection time, and manual result tracking — resources that
+        compound in cost as production scales. Automated inspection directly addresses
+        these inefficiencies while improving consistency and repeatability.
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- MODELS -->
+<section id="models">
+  <div class="section-tag reveal">Model Selection</div>
+  <h2 class="section-title reveal">Four Models, Two Approaches</h2>
+  <p class="section-desc reveal">
+    Two learning paradigms — supervised and unsupervised — were each tested with two backbone architectures:
+    a CNN-based ResNet50 and a Transformer-based Swin-Tiny. All models were evaluated on the same test set
+    using identical metrics to ensure a fair comparison.
+  </p>
+
+  <div class="model-grid">
+    <div class="model-card reveal">
+      <span class="model-badge badge-supervised">Supervised</span>
+      <h3>ResNet50</h3>
+      <div class="model-arch">CNN Backbone</div>
+      <p>A classic convolutional architecture trained on labeled defect annotations, learning discriminative features through direct supervision.</p>
+    </div>
+    <div class="model-card reveal">
+      <span class="model-badge badge-supervised">Supervised</span>
+      <h3>Swin-Tiny</h3>
+      <div class="model-arch">Transformer Backbone</div>
+      <p>A hierarchical vision Transformer fine-tuned on annotated defect data, capturing long-range spatial dependencies across image patches.</p>
+    </div>
+    <div class="model-card reveal">
+      <span class="model-badge badge-unsupervised">Unsupervised</span>
+      <h3>No-Teacher ResNet50</h3>
+      <div class="model-arch">CNN Backbone</div>
+      <p>An anomaly detection model trained only on normal samples. Defects are identified as deviations from the learned normal distribution.</p>
+    </div>
+    <div class="model-card reveal">
+      <span class="model-badge badge-unsupervised">Unsupervised</span>
+      <h3>No-Teacher Swin-Tiny</h3>
+      <div class="model-arch">Transformer Backbone</div>
+      <p>A Transformer-based anomaly detector using the same teacher-free paradigm, leveraging self-attention to model normal appearance.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- DATASET -->
+<section id="dataset" style="padding-top: 0;">
+  <div class="section-tag reveal">Dataset</div>
+  <h2 class="section-title reveal">MVTec Anomaly Detection</h2>
+  <p class="section-desc reveal">
+    Two product categories from the MVTec AD benchmark were selected — <strong>Cable</strong> and <strong>Transistor</strong> —
+    chosen to represent different surface textures and defect types. The same underlying data
+    was adapted differently for each learning paradigm.
+  </p>
+
+  <div class="two-col">
+    <div class="text-card reveal">
+      <h3>Supervised Setup</h3>
+      <p>
+        The dataset was adapted for supervised training using the available defect annotations.
+        Online augmentation — including random flips, crops, and color jitter — improved sample
+        diversity without duplicating images, helping the model generalise across visual variations.
+      </p>
+    </div>
+    <div class="text-card reveal">
+      <h3>Unsupervised Setup</h3>
+      <p>
+        For the no-teacher models, only defect-free samples were used during training.
+        The models learn a representation of normal appearance, then flag any image region
+        that deviates significantly from that baseline as a potential defect at inference time.
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
 
 <!-- RESULTS -->
 <section id="results">
-  <div class="section-tag reveal">Model Output Gallery</div>
-  <h2 class="section-title reveal">Detection Results</h2>
+  <div class="section-tag reveal">Detection Results</div>
+  <h2 class="section-title reveal">Model Outputs</h2>
   <p class="section-desc reveal">
-    Sample predictions from the trained model. Each image shows the original input
-    overlaid with bounding boxes and confidence scores from the detector.
+    Each card shows one test sample as a composite figure: the original image and ground truth mask,
+    followed by the anomaly map and binary mask from all four models side by side.
+    Add your composite images to the <code style="font-family:'DM Mono',monospace; font-size:0.85em; background:var(--tag-bg); padding:0.1rem 0.4rem; border-radius:3px;">images/</code> folder to populate the cards.
   </p>
 
-  <div class="results-grid">
-
-    <div class="result-card reveal">
-      <div class="result-img-wrap">
-        <img src="images/result1.jpg" alt="Detection result 1"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-        <div class="img-placeholder" style="display:none;">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
-          </svg>
-          Add your image to<br/>images/result1.jpg
-        </div>
-        <span class="result-badge badge-defect">Defect</span>
-      </div>
-      <div class="result-body">
-        <div class="result-title">Surface Crack — Sample 001</div>
-        <div class="result-meta">Class: Linear Crack · Severity: High</div>
-        <div class="result-bar-wrap">
-          <span class="result-bar-label">Conf.</span>
-          <div class="result-bar"><div class="result-bar-fill" style="width:96%"></div></div>
-          <span class="result-bar-val">96%</span>
-        </div>
+  <!-- SAMPLE 1 — replace src with your composite figure filename -->
+  <div class="sample-block reveal">
+    <div class="sample-header">
+      <h3>Transistor — Test Sample #0</h3>
+      <span class="sample-meta">GT label: defect · model-specific thresholds from validation</span>
+    </div>
+    <div class="sample-composite">
+      <img src="images/transistor_sample0.png" alt="Transistor sample 0 — all model outputs"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+      <div class="img-placeholder-full" style="display:none;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        Add your composite figure here<br/>
+        images/transistor_sample0.png
       </div>
     </div>
-
-    <div class="result-card reveal">
-      <div class="result-img-wrap">
-        <img src="images/result2.jpg" alt="Detection result 2"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-        <div class="img-placeholder" style="display:none;">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
-          </svg>
-          Add your image to<br/>images/result2.jpg
-        </div>
-        <span class="result-badge badge-ok">OK</span>
-      </div>
-      <div class="result-body">
-        <div class="result-title">Clean Surface — Sample 002</div>
-        <div class="result-meta">Class: No Defect · Severity: None</div>
-        <div class="result-bar-wrap">
-          <span class="result-bar-label">Conf.</span>
-          <div class="result-bar"><div class="result-bar-fill" style="width:99%"></div></div>
-          <span class="result-bar-val">99%</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="result-card reveal">
-      <div class="result-img-wrap">
-        <img src="images/result3.jpg" alt="Detection result 3"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-        <div class="img-placeholder" style="display:none;">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
-          </svg>
-          Add your image to<br/>images/result3.jpg
-        </div>
-        <span class="result-badge badge-defect">Defect</span>
-      </div>
-      <div class="result-body">
-        <div class="result-title">Scratch Defect — Sample 003</div>
-        <div class="result-meta">Class: Surface Scratch · Severity: Medium</div>
-        <div class="result-bar-wrap">
-          <span class="result-bar-label">Conf.</span>
-          <div class="result-bar"><div class="result-bar-fill" style="width:88%"></div></div>
-          <span class="result-bar-val">88%</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="result-card reveal">
-      <div class="result-img-wrap">
-        <img src="images/result4.jpg" alt="Detection result 4"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-        <div class="img-placeholder" style="display:none;">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
-          </svg>
-          Add your image to<br/>images/result4.jpg
-        </div>
-        <span class="result-badge badge-conf">Uncertain</span>
-      </div>
-      <div class="result-body">
-        <div class="result-title">Edge Case — Sample 004</div>
-        <div class="result-meta">Class: Possible Pit · Severity: Low</div>
-        <div class="result-bar-wrap">
-          <span class="result-bar-label">Conf.</span>
-          <div class="result-bar"><div class="result-bar-fill" style="width:61%"></div></div>
-          <span class="result-bar-val">61%</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="result-card reveal">
-      <div class="result-img-wrap">
-        <img src="images/result5.jpg" alt="Detection result 5"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-        <div class="img-placeholder" style="display:none;">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
-          </svg>
-          Add your image to<br/>images/result5.jpg
-        </div>
-        <span class="result-badge badge-defect">Defect</span>
-      </div>
-      <div class="result-body">
-        <div class="result-title">Corrosion Spot — Sample 005</div>
-        <div class="result-meta">Class: Oxidation · Severity: High</div>
-        <div class="result-bar-wrap">
-          <span class="result-bar-label">Conf.</span>
-          <div class="result-bar"><div class="result-bar-fill" style="width:91%"></div></div>
-          <span class="result-bar-val">91%</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="result-card reveal">
-      <div class="result-img-wrap">
-        <img src="images/result6.jpg" alt="Detection result 6"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-        <div class="img-placeholder" style="display:none;">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
-          </svg>
-          Add your image to<br/>images/result6.jpg
-        </div>
-        <span class="result-badge badge-ok">OK</span>
-      </div>
-      <div class="result-body">
-        <div class="result-title">Clean Surface — Sample 006</div>
-        <div class="result-meta">Class: No Defect · Severity: None</div>
-        <div class="result-bar-wrap">
-          <span class="result-bar-label">Conf.</span>
-          <div class="result-bar"><div class="result-bar-fill" style="width:98%"></div></div>
-          <span class="result-bar-val">98%</span>
-        </div>
-      </div>
-    </div>
-
   </div>
+
+  <!-- SAMPLE 2 -->
+  <div class="sample-block reveal">
+    <div class="sample-header">
+      <h3>Transistor — Test Sample #1</h3>
+      <span class="sample-meta">GT label: defect · model-specific thresholds from validation</span>
+    </div>
+    <div class="sample-composite">
+      <img src="images/transistor_sample1.png" alt="Transistor sample 1 — all model outputs"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+      <div class="img-placeholder-full" style="display:none;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        Add your composite figure here<br/>
+        images/transistor_sample1.png
+      </div>
+    </div>
+  </div>
+
+  <!-- SAMPLE 3 -->
+  <div class="sample-block reveal">
+    <div class="sample-header">
+      <h3>Cable — Test Sample #0</h3>
+      <span class="sample-meta">GT label: defect · model-specific thresholds from validation</span>
+    </div>
+    <div class="sample-composite">
+      <img src="images/cable_sample0.png" alt="Cable sample 0 — all model outputs"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+      <div class="img-placeholder-full" style="display:none;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        Add your composite figure here<br/>
+        images/cable_sample0.png
+      </div>
+    </div>
+  </div>
+
+  <!-- SAMPLE 4 -->
+  <div class="sample-block reveal">
+    <div class="sample-header">
+      <h3>Cable — Test Sample #1</h3>
+      <span class="sample-meta">GT label: defect · model-specific thresholds from validation</span>
+    </div>
+    <div class="sample-composite">
+      <img src="images/cable_sample1.png" alt="Cable sample 1 — all model outputs"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+      <div class="img-placeholder-full" style="display:none;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        Add your composite figure here<br/>
+        images/cable_sample1.png
+      </div>
+    </div>
+  </div>
+
+  <!-- To add more samples: duplicate any block above, update the header text and image src/alt -->
+
 </section>
 
 <hr class="section-divider" />
 
-<!-- PIPELINE -->
-<section id="pipeline">
-  <div class="section-tag reveal">Architecture</div>
-  <h2 class="section-title reveal">How It Works</h2>
+<!-- FUTURE WORK -->
+<section id="future" style="padding-bottom: 4rem;">
+  <div class="section-tag reveal">Future Work</div>
+  <h2 class="section-title reveal">Next Steps</h2>
   <p class="section-desc reveal">
-    A four-stage pipeline transforms raw camera frames into structured defect reports in real time.
+    Several directions remain open for extending this research toward real-world production deployment.
   </p>
 
-  <div class="pipeline reveal">
-    <div class="pipeline-step">
-      <div class="step-num">01</div>
-      <span class="step-icon">📷</span>
-      <div class="step-title">Image Capture</div>
-      <p class="step-desc">High-resolution images are acquired from industrial cameras or uploaded datasets for offline evaluation.</p>
-    </div>
-    <div class="pipeline-step">
-      <div class="step-num">02</div>
-      <span class="step-icon">⚙️</span>
-      <div class="step-title">Preprocessing</div>
-      <p class="step-desc">Normalization, resizing to 640×640, and augmentation (flip, crop, noise) prepare inputs for the backbone.</p>
-    </div>
-    <div class="pipeline-step">
-      <div class="step-num">03</div>
-      <span class="step-icon">🧠</span>
-      <div class="step-title">Model Inference</div>
-      <p class="step-desc">A fine-tuned YOLOv8 / CNN backbone runs forward pass, producing bounding boxes and class probabilities.</p>
-    </div>
-    <div class="pipeline-step">
-      <div class="step-num">04</div>
-      <span class="step-icon">📊</span>
-      <div class="step-title">Post-processing</div>
-      <p class="step-desc">NMS filters overlapping boxes; results are visualized with color-coded overlays and logged to a report.</p>
-    </div>
-  </div>
-</section>
-
-<hr class="section-divider" />
-
-<!-- METRICS -->
-<section id="metrics">
-  <div class="section-tag reveal">Evaluation</div>
-  <h2 class="section-title reveal">Performance Metrics</h2>
-  <p class="section-desc reveal">
-    Evaluated on a held-out test set of 1,200 images across 5 defect categories.
-  </p>
-
-  <div style="border:1px solid var(--border); border-radius:10px; overflow:hidden; background:var(--surface);" class="reveal">
-    <table class="metrics-table">
-      <thead>
-        <tr>
-          <th>Defect Class</th>
-          <th>Precision</th>
-          <th>Recall</th>
-          <th>F1 Score</th>
-          <th>mAP@0.5</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Linear Crack</td>
-          <td><span class="metric-pill pill-green">96.2%</span></td>
-          <td><span class="metric-pill pill-blue">97.1%</span></td>
-          <td><span class="metric-pill pill-green">96.6%</span></td>
-          <td><span class="metric-pill pill-green">0.962</span></td>
-        </tr>
-        <tr>
-          <td>Surface Scratch</td>
-          <td><span class="metric-pill pill-green">93.4%</span></td>
-          <td><span class="metric-pill pill-blue">94.8%</span></td>
-          <td><span class="metric-pill pill-green">94.1%</span></td>
-          <td><span class="metric-pill pill-green">0.934</span></td>
-        </tr>
-        <tr>
-          <td>Pit / Void</td>
-          <td><span class="metric-pill pill-blue">89.7%</span></td>
-          <td><span class="metric-pill pill-blue">91.2%</span></td>
-          <td><span class="metric-pill pill-blue">90.4%</span></td>
-          <td><span class="metric-pill pill-blue">0.897</span></td>
-        </tr>
-        <tr>
-          <td>Oxidation</td>
-          <td><span class="metric-pill pill-green">95.1%</span></td>
-          <td><span class="metric-pill pill-blue">93.6%</span></td>
-          <td><span class="metric-pill pill-green">94.3%</span></td>
-          <td><span class="metric-pill pill-green">0.951</span></td>
-        </tr>
-        <tr>
-          <td>No Defect</td>
-          <td><span class="metric-pill pill-green">99.1%</span></td>
-          <td><span class="metric-pill pill-green">98.7%</span></td>
-          <td><span class="metric-pill pill-green">98.9%</span></td>
-          <td><span class="metric-pill pill-green">0.991</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<hr class="section-divider" />
-
-<!-- ABOUT -->
-<section id="about" style="padding-bottom:4rem;">
-  <div class="section-tag reveal">The Project</div>
-  <h2 class="section-title reveal">About</h2>
-
-  <div class="about-grid">
-    <div class="about-card reveal">
-      <h3>Project Overview</h3>
+  <div class="future-card reveal">
+    <div class="future-item">
+      <h3>📷 Smart-Camera Deployment</h3>
       <p>
-        This project applies deep learning to automated quality control. Traditional
-        manual inspection is slow and error-prone; our model provides consistent,
-        real-time analysis that generalises across surface types and lighting conditions.
+        The primary goal is to deploy trained models on smart cameras for real-time production-line
+        inspection. Models would run fully locally — flagging defects without sending any data to a
+        remote server — enabling low-latency, privacy-preserving quality control.
       </p>
     </div>
-    <div class="about-card reveal">
-      <h3>Dataset &amp; Training</h3>
+    <div class="future-item">
+      <h3>🗺 Defect Localisation</h3>
       <p>
-        The model was trained on the NEU Surface Defect Database, augmented with
-        custom images. Training ran for 100 epochs on a single NVIDIA GPU using
-        PyTorch, with early stopping and cosine LR scheduling.
+        Beyond classification, future iterations would highlight the exact location of each
+        defect using pixel-level segmentation masks. This gives operators precise spatial
+        feedback and enables downstream automation of rejection or rework decisions.
       </p>
     </div>
-    <div class="about-card reveal">
-      <h3>Tech Stack</h3>
+    <div class="future-item">
+      <h3>🔬 Advanced Anomaly Models</h3>
       <p>
-        Python · PyTorch · YOLOv8 · OpenCV · scikit-learn · Weights &amp; Biases
-        for experiment tracking · ONNX for model export and edge deployment.
-      </p>
-    </div>
-    <div class="about-card reveal">
-      <h3>Team</h3>
-      <p>
-        Developed by [Your Name] as part of the [Course Name] course at
-        [Your University], [Year]. Supervised by [Supervisor Name].
+        Testing more expressive generative models — such as Variational Autoencoders (VAEs) —
+        is planned to improve unsupervised segmentation quality, particularly for subtle or
+        low-contrast defects that challenge current feature-distance approaches.
       </p>
     </div>
   </div>
@@ -824,8 +713,8 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">DefectVision</div>
-  <div class="footer-text">University Project · [Your University] · [Year]</div>
+  <div class="footer-logo">Defect Detection</div>
+  <div class="footer-text">University Research Project · [Your University] · 2025</div>
 </footer>
 
 <script>
@@ -840,16 +729,9 @@
         observer.unobserve(e.target);
       }
     });
-  }, { threshold: 0.12 });
+  }, { threshold: 0.1 });
 
   reveals.forEach(el => observer.observe(el));
-
-  const bars = document.querySelectorAll('.result-bar-fill');
-  bars.forEach(b => {
-    const w = b.style.width;
-    b.style.width = '0%';
-    setTimeout(() => { b.style.width = w; }, 300);
-  });
 </script>
 
 </body>
